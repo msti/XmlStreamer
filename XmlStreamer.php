@@ -17,6 +17,8 @@ abstract class XmlStreamer
     private $rootNode;
     private $customRootNode;
 
+    public $parseNodeOut;
+
     /**
     * @param $mixed             Path to XML file OR file handle
     * @param $chunkSize         Bytes to read per cycle (Optional, default is 16 KiB)
@@ -43,6 +45,20 @@ abstract class XmlStreamer
         $this->customRootNode = $customRootNode;
         $this->customChildNode = $customChildNode;
         $this->init();
+    }
+
+    /**
+     * Getter method.
+     */
+    public function getparseNodeOut(){
+      return $this->parseNodeOut;
+    }
+
+    /**
+     * Setter method.
+     */
+    public function setparseNodeOut($val){
+      $this->parseNodeOut = $val;
     }
 
     /**
@@ -242,3 +258,4 @@ abstract class XmlStreamer
         return true;
     }
 }
+
