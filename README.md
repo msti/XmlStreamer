@@ -27,6 +27,8 @@ class SimpleXmlStreamer extends XmlStreamer
     {
         $xml = simplexml_load_string($xmlString);
         $something = (string)$xml->Something->SomethingElse->ReadThis;
+				$data = $this->getparseNodeOut();
+				$this->setparseNodeOut($data);
         echo "$nodeIndex: Extracted string '$something' from parent node '$elementName'\n";     
         return true;
     }
@@ -38,6 +40,7 @@ if ($streamer->parse()) {
 } else {
     echo "Couldn't find root node";
 }
+echo $this->getparseNodeOut();
 ```
 
 ## Advanced example
