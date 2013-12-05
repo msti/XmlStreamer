@@ -7,7 +7,6 @@
 abstract class XmlStreamer
 {
   private $handle;
-  private $totalBytes;
   private $readBytes = 0;
   private $nodeIndex = 0;
   private $chunk = "";
@@ -23,22 +22,12 @@ abstract class XmlStreamer
    * @param $mixed             Path to XML file OR file handle
    * @param $chunkSize         Bytes to read per cycle (Optional, default is 16 KiB)
    * @param $customRootNode    Specific root node to use (Optional)
-   * @param $totalBytes        Xml file size - Required if supplied file handle
    */
-  public function __construct($mixed, $chunkSize = 16384, $customRootNode = null, $totalBytes = null, $customChildNode = null) {
+  public function __construct($mixed, $chunkSize = 16384, $customRootNode = null, $customChildNode = null) {
     if (is_string($mixed)) {
       $this->handle = fopen($mixed, "r");
-      if (isset($totalBytes)) {
-        $this->totalBytes = $totalBytes;
-      } else {
-        $this->totalBytes = filesize($mixed);
-      }
     } else if (is_resource($mixed)){
       $this->handle = $mixed;
-      if (!isset($totalBytes)) {
-        throw new Exception("totalBytes parameter required when supplying a file handle.");
-      }
-      $this->totalBytes = $totalBytes;
     }
 
     $this->chunkSize = $chunkSize;
@@ -225,7 +214,6 @@ abstract class XmlStreamer
             // Found end tag
             $endTagEndPos = $endTagPos + strlen($endTag);
             $elementWithChildren = trim(substr($fromChunkPos, 0, $endTagEndPos));
-
             $continueParsing = $this->processNode($elementWithChildren, $sElementName, $this->nodeIndex++);
             $this->chunk = substr($this->chunk, strpos($this->chunk, $endTag) + strlen($endTag));
             $this->readFromChunkPos = 0;
@@ -249,13 +237,14 @@ abstract class XmlStreamer
 
   private function readNextChunk()
   {
-    $this->chunk .= fread($this->handle, $this->chunkSize);
-    $this->readBytes += $this->chunkSize;
-    if ($this->readBytes >= $this->totalBytes) {
-      $this->readBytes = $this->totalBytes;
+    $chunk = fread($this->handle, $this->chunkSize);
+    if($chunk !== ''){
+      $this->chunk .= $chunk;
+      $this->readBytes += $this->chunkSize;
+      return true;
+    } else {
       return false;
     }
-    return true;
   }
 }
 
